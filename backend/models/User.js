@@ -1,17 +1,19 @@
 import mongoose from "mongoose";
 
-const UserSehema = mongoose.Schema({
-    _id : {type : String, reqired : true, },
-    username : {type : String, reqired : true, },
-    email : {type : String, reqired : true, },
-    image : {type : String, reqired : true, },
-    role : {type : String, enum :["User" , "HotelOwner"], default : "user" },
-    recentSearchedCities : [{type : String, required : true}],
+const UserSchema = new mongoose.Schema(
+  {
+    _id: { type: String, required: true },
+    username: { type: String, required: true },
+    email: { type: String, required: true },
+    image: { type: String, required: true },
+    role: { type: String, enum: ["User", "HotelOwner"], default: "User" },
+    recentSearchedCities: [{ type: String }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
+const User = mongoose.model("User", UserSchema);
 
-},{
-    timestamps : true
-})
-const user = mongoose.model("User" , UserSehema)
-
-export default user
+export default User;
