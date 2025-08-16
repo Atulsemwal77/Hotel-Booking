@@ -7,7 +7,7 @@ export const registerHotel = async (req , res)=>{
         const owner = req.user._id
 
         // check if user is Already register 
-        const hotel = await Hotel.find({owner})
+        const hotel = await Hotel.findOne({owner})
         if(hotel){
             return res.json({success : false , message:"Hotel Already Register" })
         }
@@ -17,6 +17,6 @@ export const registerHotel = async (req , res)=>{
 
         res.json({success : true , message : "Hotel Registered Successfully"})
     } catch (error) {
-        res.json({success : false , message : " faild  to add Hotel Registered"})
+        res.json({success : false , message : "error in Adding "+ error.message})
     }
 }

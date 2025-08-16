@@ -5,9 +5,14 @@ import connectDb from "./configs/db.js"
 import { clerkMiddleware } from '@clerk/express'
 import clerkWebHooks from "./controllers/clerkWebHooks.js"
 import userRouter from "./routes/userRoute.js"
+import hotelRouter from "./routes/hotelRoute.js"
+import connectCloudinary from "./configs/cloudinary.js"
+import roomRouter from "./routes/roomRoute.js"
+import bookingRouter from "./routes/bookingRoutes.js"
 
 
 connectDb()
+connectCloudinary()
 const app = express()
 
 app.use(cors())
@@ -23,6 +28,9 @@ app.get('/' , (req , res)=>{
     res.send("API is working")
 })
 app.use('/api/user', userRouter)
+app.use('/api/hotels', hotelRouter)
+app.use('/api/rooms', roomRouter)
+app.use('/api/bookings' , bookingRouter)
 
 const PORT = process.env.PORT ||3000 ;
 
