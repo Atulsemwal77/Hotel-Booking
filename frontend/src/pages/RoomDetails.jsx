@@ -2,17 +2,72 @@ import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { assets, facilityIcons, roomCommonData, roomsDummyData } from "../assets/assets";
 import StarRating from "../components/StarRating";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const RoomDetails = () => {
   const { id } = useParams();
+  const {rooms , getToken , axios ,navigate} = useAppContext()
   const [room, setRoom] = useState(null);
   const [mainImage, setMainImage] = useState(null);
 
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [guests , setGuests] = useState(1);
+
+  const [isAvailable , setIsAvailable] = useState(false);
+
+  // Check if the room is available
+  const checkAvailability = async()=>{
+   try {
+    // Check is Check In Date is grater than Check out date
+    if(checkInDate >= checkOutDate){
+      toast.error("Check-In Date should be less then check-out Date")
+      return;
+    }
+    const {data} = await axios.post('/api/bookings/check-availability', {room : id , checkInDate , checkOutDate})
+    if(data.success){
+      if(data.isAvailable){
+        setIsAvailable(true)
+        toast.success("Room is Available")
+      } else {
+        setIsAvailable(false)
+        toast.error("Room is not Available")
+      }
+    }else{
+      toast.error(data.message)
+    }
+   } catch (error) {
+    toast.error(error.message)
+   }
+  }
+
+  // onsubmithandler fn to check availability and book the room
+  const onSubmithandler = async(e)=>{
+    try {
+      e.preventDefault()
+      if(!isAvailable){
+        return checkAvailability();
+      } else {
+        const {data} = await axios.post('/api/bookings/book' , {room : id , checkInDate , checkOutDate , guests , paymentMethod : "Pay At Hotel"} , {headers : {Authorization : `Bearer ${await getToken()}`}})
+        if(data.success){
+          toast.success(data.message)
+          navigate('/my-bookings')
+          scrollTo(0 , 0 )
+        } else {
+          toast.error(data.message)
+        }
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
   useEffect(() => {
-    const room = roomsDummyData.find((room) => room._id === id);
+    const room = rooms.find((room) => room._id === id);
     room && setRoom(room);
     room && setMainImage(room.images[0]);
-  }, []);
+  }, [rooms]);
   return (
     room && (
       <div className="py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32">
@@ -87,6 +142,7 @@ const RoomDetails = () => {
 
         {/* Check in form */}
         <form
+          onSubmit={onSubmithandler}
           action=""
           className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl"
         >
@@ -98,6 +154,7 @@ const RoomDetails = () => {
               <input
                 type="date"
                 id="checkInDate"
+                onChange={(e)=>setCheckInDate(e.target.value)} min={new Date().toISOString().split('T')[0]} 
                 placeholder="check in "
                 className="w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
                 required
@@ -111,6 +168,7 @@ const RoomDetails = () => {
               <input
                 type="date"
                 id="checkOutDate"
+                onChange={(e)=>setCheckOutDate(e.target.value)} min={checkInDate} disabled={!checkInDate}
                 placeholder="check Out "
                 className="w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
                 required
@@ -126,7 +184,8 @@ const RoomDetails = () => {
               <input
                 type="number"
                 id="guests"
-                placeholder="0 "
+                onChange={(e)=>setGuests(e.target.value)} value={guests}
+                placeholder="1 "
                 className="max-w-20 rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
                 required
               />
@@ -137,7 +196,7 @@ const RoomDetails = () => {
             type="submit"
             className="bg-[var(--color-primary)] hover:bg-[var(--color-primary)]-dull active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer "
           >
-            Check Avaliability
+            {isAvailable ? "Book Now" : "Check Avaliability"}
           </button>
         </form>
 

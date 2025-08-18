@@ -6,7 +6,7 @@ const bookingSechma = new mongoose.Schema({
     hotel : {type : String , ref:"Hotel", require : true},
     checkInDate : {type : Date , required : true},
     checkOutDate : {type : Date , required : true},
-    totalprice : {type : Number , require : true},
+    totalPrice : {type : Number , require : true},
     guests : {type : Number , require : true},
     status : {
         type : String,

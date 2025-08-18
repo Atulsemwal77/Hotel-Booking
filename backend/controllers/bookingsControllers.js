@@ -72,7 +72,7 @@ export const createBooking = async(req, res)=>{
 
 // API to get all booking for a user 
 
-export const getUserBooking = async()=>{
+export const getUserBooking = async(req , res)=>{
     try {
         const user = req.user._id;
         const bookings = await Booking.find({user}).populate("room hotel").sort({createdAt : -1})
@@ -94,7 +94,7 @@ export const getHotelBookings = async(req, res)=>{
     // Total Booking & revenue
     const totalBookings = bookings.length;
 
-    const totalRevenue = bookings.reduce((acc , booking)=>acc + booking.totalprice , 0)
+    const totalRevenue = bookings.reduce((acc , booking)=>acc + booking.totalPrice , 0)
     
     res.json({success : true , dashboardData : {totalBookings , totalRevenue , bookings}})
     

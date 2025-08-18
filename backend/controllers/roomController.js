@@ -6,7 +6,8 @@ import Room from "../models/Room.js"
 export const createRoom = async( req , res)=>{
   try {
     const {roomType, pricePerNight , amenities}= req.body;
-    const hotel = await Hotel.findOne({owner : req.auth.UserId})
+    // const hotel = await Hotel.findOne({owner : req.auth.UserId})
+    const hotel = await Hotel.findOne({owner : req.user._id})
 
     if(!hotel) return res.json({success : false , message : "No Hotel Found"})
     
@@ -50,7 +51,8 @@ export const getRoom = async( req , res)=>{
 // Api to get all rooms for a specific hotel
 export const getOwnerRooms = async( req , res)=>{
    try {
-    const hotelData = await Hotel({owner : req.auth.UserId})
+    // const hotelData = await Hotel.findOne({owner : req.auth.UserId})
+    const hotelData = await Hotel.findOne({owner : req.user._id})
     const rooms = await Room.find({hotel : hotelData._id.toString()}).populate("hotel")
     res.json({success : true , rooms})
 } catch (error) {
